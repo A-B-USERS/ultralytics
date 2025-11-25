@@ -1,11 +1,17 @@
 pipeline {
     agent any
 
+    triggers {
+        // Auto-trigger when changes push ho GitHub main branch
+        pollSCM('* * * * *') // Every minute for testing, production main adjust karo
+    }
+
     stages {
         stage('Checkout') {
             steps {
                 git branch: 'main',
-                    url: 'https://github.com/A-B-USERS/ultralytics.git'
+                    url: 'https://github.com/A-B-USERS/ultralytics.git',
+                    credentialsId: 'github-token2' // Jo PAT tumne Jenkins me add kiya
             }
         }
 
@@ -39,7 +45,9 @@ pipeline {
             steps {
                 sh '''
                 mkdir -p build
-                cp -r * build/
+                # Copy all files except build folder itself
+                shopt -s extglob
+                cp -r !(build) build/
                 '''
             }
         }
